@@ -1,30 +1,148 @@
-# Visual novel project edit
+# 🎮 AI Visual Novel Game
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+An AI-powered interactive visual novel where **you** are the main character! Experience personalized stories with your face featured in every scene, powered by cutting-edge AI technology.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/intisar-hasnains-projects/v0-visual-novel-project-edit)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/tUB7FZsgRVl)
+## ✨ Features
 
-## Overview
+🤖 **AI-Generated Stories** - Dynamic narratives powered by Mistral AI  
+📸 **Face-Consistent Images** - Your face in every scene via LumaLabs Dream Machine  
+⚡ **X Meter System** - Strategic choices affect Health/Trust/Reputation  
+🎯 **Smart Pre-generation** - Smooth gameplay with background scene generation  
+💰 **Credits System** - 100 free credits to start, purchase more as needed  
+📖 **Storybook Export** - Download your complete adventure as HTML  
+🎨 **Multiple Genres** - Fantasy, Sci-Fi, Horror, Romance, Mystery, Adventure  
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## 🚀 Quick Start
 
-## Deployment
+1. **Clone & Install**
+   ```bash
+   git clone <your-repo>
+   cd ai-visual-novel-game
+   npm install
+   ```
 
-Your project is live at:
+2. **Set up Environment**
+   ```bash
+   cp .env.example .env.local
+   # Fill in your API keys (see SETUP.md for details)
+   ```
 
-**[https://vercel.com/intisar-hasnains-projects/v0-visual-novel-project-edit](https://vercel.com/intisar-hasnains-projects/v0-visual-novel-project-edit)**
+3. **Set up Database**
+   - Follow the database setup guide in `SETUP.md`
+   - Run the SQL scripts in order in your Supabase project
 
-## Build your app
+4. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
+   
+   Visit http://localhost:3000
 
-Continue building your app on:
+## 📋 Prerequisites
 
-**[https://v0.dev/chat/projects/tUB7FZsgRVl](https://v0.dev/chat/projects/tUB7FZsgRVl)**
+### Required API Keys
+- **Supabase** (Database & Auth) - https://supabase.com/
+- **Mistral AI** (Story Generation) - https://console.mistral.ai/
+- **LumaLabs** (Image Generation) - https://lumalabs.ai/dream-machine/api
 
-## How It Works
+### Optional
+- **Paddle** (Payment Processing) - For credits purchases
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## 🎯 How It Works
+
+1. **Sign Up** - Create your account with email/password
+2. **Character Setup** - Upload your face photo, choose name & genre  
+3. **Play** - Make choices that shape your unique story path
+4. **Watch** - AI generates scenes featuring you as the protagonist
+5. **Manage** - Keep your X Meter above 0 or face game over!
+6. **Download** - Get your complete adventure as a storybook
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS, Radix UI Components  
+- **Backend**: Next.js API Routes
+- **Database**: Supabase (PostgreSQL)
+- **Auth**: Supabase Auth
+- **Storage**: Supabase Storage  
+- **State**: Zustand
+- **AI**: Mistral AI (Story), LumaLabs (Images)
+
+## 📁 Project Structure
+
+```
+/app
+├── app/                   # Next.js App Router
+│   ├── (auth)/           # Auth pages
+│   ├── game/             # Game interface  
+│   ├── api/              # API routes
+│   └── globals.css       # Global styles
+├── components/           # Reusable components
+├── lib/                  # Utilities & configuration
+├── scripts/              # Database & setup scripts
+└── public/               # Static assets
+```
+
+## 🎮 Game Mechanics
+
+### X Meter System
+- Start with 100 points (Health/Trust/Reputation based on genre)
+- Wrong choices reduce by 10 points
+- Reach 0 = Game Over
+- Complete all scenes = Victory!
+
+### Credits System  
+- New users get 100 free credits
+- Each scene costs 10 credits (story + image generation)
+- Purchase more credits to continue playing
+
+### Story Generation
+- Dynamic branching narratives
+- 20-30 scenes per adventure  
+- Pre-generated choices for smooth gameplay
+- Character-consistent image generation
+
+## 🔧 Development
+
+### Available Scripts
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server  
+npm run lint         # Run ESLint
+```
+
+### Testing Setup
+```bash
+./scripts/dev-setup.sh   # Check environment & build
+```
+
+## 📝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 🐛 Troubleshooting
+
+See `SETUP.md` for detailed troubleshooting guide.
+
+**Common Issues:**
+- Environment variables not set → Copy `.env.example` to `.env.local`
+- Database errors → Run SQL scripts in Supabase dashboard
+- Image generation fails → Check LumaLabs API key and credits
+- Story generation fails → Verify Mistral AI API key
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🙏 Acknowledgments
+
+- Mistral AI for story generation capabilities
+- LumaLabs for face-consistent image generation  
+- Supabase for backend infrastructure
+- Radix UI for component primitives
+- Vercel for Next.js framework
