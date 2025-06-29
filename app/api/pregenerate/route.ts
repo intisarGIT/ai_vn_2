@@ -8,12 +8,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    console.log(`Pre-generating scenes a_${sceneNumber + 1} and b_${sceneNumber + 1}`)
+    // ------------------------------------------------------------------
+    // Build an absolute URL that always points to this same deployment
+    // ------------------------------------------------------------------
+    const host = request.headers.get("host") ?? ""
+    const protocol = host.startsWith("localhost") ? "http" : "https"
+    const base = `${protocol}://${host}` // e.g. https://my-app.vercel.app
+    const sceneEndpoint = `${base}/api/scene`
 
-    // Pre-generate both next scenes in background
-    const promises = [
-      // Generate a_(n+1) - correct path
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/scene`, {
+    console.log(`Pre-generating a_${sceneNumber + 1} and b_${sceneNumber + 1} via ${sceneEndpoint}`)
+
+    // Kick off both requests in parallel (fire-and-forget)
+    // We silently swallow any network error so the main request stays fast.
+    Promise.allSettled([
+      fetch(sceneEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -23,8 +31,7 @@ export async function POST(request: Request) {
           preGenerate: true,
         }),
       }),
-      // Generate b_(n+1) - wrong path
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/scene`, {
+      fetch(sceneEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -34,16 +41,14 @@ export async function POST(request: Request) {
           preGenerate: true,
         }),
       }),
-    ]
-
-    // Don't wait for completion - fire and forget
-    Promise.all(promises).catch((error) => {
-      console.error("Pre-generation error:", error)
+    ]).catch((err) => {
+      // Log but never crash the current response
+      console.error("[Pre-generation] background error:", err)
     })
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Error in pre-generation:", error)
+    console.error("[Pre-generation] top-level error:", error)
     return NextResponse.json({ error: "Pre-generation failed" }, { status: 500 })
   }
 }

@@ -15,26 +15,26 @@ An AI-powered interactive visual novel where **you** are the main character! Exp
 ## 🚀 Quick Start
 
 1. **Clone & Install**
-   ```bash
+   \`\`\`bash
    git clone <your-repo>
    cd ai-visual-novel-game
    npm install
-   ```
+   \`\`\`
 
 2. **Set up Environment**
-   ```bash
+   \`\`\`bash
    cp .env.example .env.local
    # Fill in your API keys (see SETUP.md for details)
-   ```
+   \`\`\`
 
 3. **Set up Database**
    - Follow the database setup guide in `SETUP.md`
    - Run the SQL scripts in order in your Supabase project
 
 4. **Run Development Server**
-   ```bash
+   \`\`\`bash
    npm run dev
-   ```
+   \`\`\`
    
    Visit http://localhost:3000
 
@@ -70,7 +70,7 @@ An AI-powered interactive visual novel where **you** are the main character! Exp
 
 ## 📁 Project Structure
 
-```
+\`\`\`
 /app
 ├── app/                   # Next.js App Router
 │   ├── (auth)/           # Auth pages
@@ -81,7 +81,7 @@ An AI-powered interactive visual novel where **you** are the main character! Exp
 ├── lib/                  # Utilities & configuration
 ├── scripts/              # Database & setup scripts
 └── public/               # Static assets
-```
+\`\`\`
 
 ## 🎮 Game Mechanics
 
@@ -105,17 +105,17 @@ An AI-powered interactive visual novel where **you** are the main character! Exp
 ## 🔧 Development
 
 ### Available Scripts
-```bash
+\`\`\`bash
 npm run dev          # Start development server
 npm run build        # Build for production
 npm run start        # Start production server  
 npm run lint         # Run ESLint
-```
+\`\`\`
 
 ### Testing Setup
-```bash
+\`\`\`bash
 ./scripts/dev-setup.sh   # Check environment & build
-```
+\`\`\`
 
 ## 📝 Contributing
 

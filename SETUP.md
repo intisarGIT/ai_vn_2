@@ -6,9 +6,9 @@
 
 Copy `.env.example` to `.env.local` and fill in your API keys:
 
-```bash
+\`\`\`bash
 cp .env.example .env.local
-```
+\`\`\`
 
 Required API keys:
 - **Supabase**: Get from your Supabase project dashboard
@@ -36,13 +36,13 @@ In your Supabase dashboard:
 
 ### 4. Install Dependencies & Run
 
-```bash
+\`\`\`bash
 # Install dependencies
 npm install
 
 # Run development server
 npm run dev
-```
+\`\`\`
 
 Visit http://localhost:3000
 
@@ -50,7 +50,7 @@ Visit http://localhost:3000
 
 ### Required Environment Variables
 
-```env
+\`\`\`env
 # Supabase (required)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
@@ -62,7 +62,7 @@ LUMA_API_KEY=luma-your_luma_api_key
 
 # Optional
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
+\`\`\`
 
 ### Getting API Keys
 
@@ -128,9 +128,9 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ### Debug Mode
 
 Set these environment variables for debugging:
-```env
+\`\`\`env
 NEXT_PUBLIC_DEBUG=true
-```
+\`\`\`
 
 ## 📝 Development
 
