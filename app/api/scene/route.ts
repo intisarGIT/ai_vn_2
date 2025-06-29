@@ -42,9 +42,12 @@ async function generateImageWithLuma(promptRaw: string, characterReferenceUrl: s
 
   const prompt = `${promptRaw.trim().slice(0, 180)}, high contrast, cinematic lighting`
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 8000)
+  const timeout = setTimeout(() => controller.abort(), 12000) // Increased timeout
 
   try {
+    console.log(`[LumaLabs] Generating image with prompt: ${prompt}`)
+    console.log(`[LumaLabs] Using character reference: ${characterReferenceUrl}`)
+    
     const createRes = await fetch(LUMA_API_URL, {
       method: "POST",
       headers: {
@@ -63,32 +66,60 @@ async function generateImageWithLuma(promptRaw: string, characterReferenceUrl: s
     })
 
     if (!createRes.ok) {
-      console.error("[LumaLabs] create error", createRes.status, await createRes.text())
+      const errorText = await createRes.text()
+      console.error("[LumaLabs] create error", createRes.status, errorText)
       return PLACEHOLDER
     }
 
     const { id: generationId } = (await createRes.json()) as { id?: string }
-    if (!generationId) return PLACEHOLDER
-
-    for (let i = 0; i < 6; i++) {
-      await new Promise((r) => setTimeout(r, 2000))
-      const poll = await fetch(`${LUMA_STATUS_URL}/${generationId}`, {
-        headers: {
-          Authorization: `Bearer ${process.env.LUMA_API_KEY}`,
-          Accept: "application/json",
-        },
-      }).catch(() => null)
-
-      if (!poll || !poll.ok) continue
-      const data = await poll.json()
-      if (data.state === "completed" && data.assets?.image) return data.assets.image
-      if (data.state === "failed") break
+    if (!generationId) {
+      console.error("[LumaLabs] No generation ID returned")
+      return PLACEHOLDER
     }
 
-    console.warn("[LumaLabs] timeout – returning placeholder")
+    console.log(`[LumaLabs] Generation started with ID: ${generationId}`)
+
+    // Poll for completion with better error handling
+    for (let i = 0; i < 8; i++) { // Increased polling attempts
+      await new Promise((r) => setTimeout(r, 2500)) // Slightly longer intervals
+      
+      try {
+        const poll = await fetch(`${LUMA_STATUS_URL}/${generationId}`, {
+          headers: {
+            Authorization: `Bearer ${process.env.LUMA_API_KEY}`,
+            Accept: "application/json",
+          },
+        })
+
+        if (!poll.ok) {
+          console.warn(`[LumaLabs] Polling attempt ${i + 1} failed with status ${poll.status}`)
+          continue
+        }
+
+        const data = await poll.json()
+        console.log(`[LumaLabs] Polling attempt ${i + 1}: ${data.state}`)
+        
+        if (data.state === "completed" && data.assets?.image) {
+          console.log(`[LumaLabs] Image generation completed: ${data.assets.image}`)
+          return data.assets.image
+        }
+        if (data.state === "failed") {
+          console.error("[LumaLabs] Generation failed:", data.failure_reason || "Unknown error")
+          break
+        }
+      } catch (pollError) {
+        console.warn(`[LumaLabs] Polling attempt ${i + 1} error:`, pollError)
+      }
+    }
+
+    console.warn("[LumaLabs] timeout or failed – returning placeholder")
     return PLACEHOLDER
   } catch (err) {
-    console.error("[LumaLabs] fetch threw", err)
+    if (err.name === 'AbortError') {
+      console.error("[LumaLabs] Request timed out")
+    } else {
+      console.error("[LumaLabs] fetch threw", err)
+    }
     return PLACEHOLDER
   } finally {
     clearTimeout(timeout)
