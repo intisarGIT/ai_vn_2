@@ -69,20 +69,26 @@ export default function GamePage() {
         if (story.current_scene < story.total_scenes) {
           preGenerateScenes(story.current_scene)
         }
-      } catch (error) {
-        console.error("Error loading game state:", error)
-        toast({
-          title: "Error",
-          description: "Failed to load the game. Please try again.",
-          variant: "destructive",
-        })
+      } catch (error: any) { // Added :any to type error for message access
+        if (error.message === "RedirectedToCredits") {
+          // User was redirected, no further error message needed here.
+          // setIsLoading(false) might still be relevant if the page doesn't fully navigate away.
+          console.log("Redirected to credits page due to insufficient funds.")
+        } else {
+          console.error("Error loading game state:", error)
+          toast({
+            title: "Error",
+            description: "Failed to load the game. Please try again.",
+            variant: "destructive",
+          })
+        }
       } finally {
         setIsLoading(false)
       }
     }
 
     loadGameState()
-  }, [router, storyId, userInfo, setGamePhase])
+  }, [router, storyId, userInfo, setGamePhase, toast]) // Added toast to dependency array
 
   const loadScene = async (sceneNumber: number, wrongPath: boolean, previousChoice = "") => {
     try {
@@ -104,6 +110,22 @@ export default function GamePage() {
 
       if (!response.ok) {
         const errorData = await response.json()
+        // Check if the error is due to insufficient credits
+        if (response.status === 402 && errorData.error === "Insufficient credits") {
+          toast({
+            title: "Insufficient Credits",
+            description: "Redirecting you to buy more credits.",
+            variant: "destructive",
+          })
+          router.push("/credits") // Redirect to credits page
+          // It's important to throw an error here or return a specific value
+          // to stop further execution in loadScene and prevent loadGameState
+          // from proceeding as if the scene loaded successfully.
+          // Throwing an error that can be specifically caught by loadGameState
+          // or just returning after router.push might be cleaner depending on desired UX.
+          // For now, let's throw a specific error to be caught by the calling function.
+          throw new Error("RedirectedToCredits")
+        }
         throw new Error(errorData.error || "Failed to load scene")
       }
 
