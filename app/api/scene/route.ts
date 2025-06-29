@@ -193,43 +193,10 @@ export async function POST(request: Request) {
       })
     }
 
-    // If this is a wrong path scene requested during gameplay (not pre-generation),
-    // it should have been pre-generated. Return an error or fallback.
-    if (isWrongPath && !preGenerate) {
-      console.error(`Wrong path scene ${sceneKey} was not pre-generated!`)
-      // Create a fallback scene without image generation
-      const fallbackScene = {
-        text: [
-          "Your choice leads to unexpected consequences.",
-          `${user.name} faces the results of this decision.`,
-          "Perhaps it's time to reconsider your approach.",
-        ],
-        image_prompt: "placeholder scene",
-        image_url: PLACEHOLDER,
-        options: ["Go back"],
-      }
-
-      // Save fallback scene
-      await supabase.from("scenes").insert({
-        story_id: storyId,
-        scene_number: sceneNumber,
-        scene_key: sceneKey,
-        text: fallbackScene.text,
-        image_prompt: fallbackScene.image_prompt,
-        image_url: fallbackScene.image_url,
-        options: fallbackScene.options,
-        is_correct_path: [false],
-        is_game_over: false,
-        is_main_path: false,
-      })
-
-      return NextResponse.json({
-        sceneKey,
-        text: fallbackScene.text,
-        imageUrl: fallbackScene.image_url,
-        options: fallbackScene.options,
-        cached: false,
-      })
+    // If !existingScene and this is a wrong path scene requested during gameplay (not pre-generation),
+    // log a warning that we're generating it on demand.
+    if (!existingScene && isWrongPath && !preGenerate) {
+      console.warn(`Wrong path scene ${sceneKey} was not pre-generated. Attempting to generate now.`);
     }
 
     // Build context for scene generation
@@ -405,19 +372,16 @@ export async function POST(request: Request) {
       }
     }
 
-    // Generate image - only for main path scenes or during pre-generation
-
-    if (!isWrongPath || preGenerate) {
-      try {
-        console.log(`Generating image for ${sceneKey} with LumaLabs...`)
-        imageUrl = await safeGenerateImage(sceneData.image_prompt, user.face_image_url)
-        console.log(`Image generated for ${sceneKey}: ${imageUrl}`)
-      } catch (err) {
-        console.error(`[LumaLabs] Error generating image for ${sceneKey}:`, err)
-        imageUrl = PLACEHOLDER
-      }
-    } else {
-      console.log(`Skipping image generation for wrong path scene ${sceneKey}`)
+    // Generate image - this part of the code is only reached if !existingScene.
+    // An image is needed for any newly generated scene content.
+    // The sceneData.image_prompt is already tailored based on whether it's a first, wrong, game over, or regular scene.
+    try {
+      console.log(`Generating image for ${sceneKey} (isWrongPath: ${isWrongPath}, preGenerate: ${preGenerate}) with LumaLabs...`)
+      imageUrl = await safeGenerateImage(sceneData.image_prompt, user.face_image_url)
+      console.log(`Image generated for ${sceneKey}: ${imageUrl}`)
+    } catch (err) { // This catch is a safety net; safeGenerateImage should handle its own errors.
+      console.error(`[LumaLabs] Critical error during image generation for ${sceneKey}:`, err)
+      imageUrl = PLACEHOLDER
     }
 
     // Save scene to database
