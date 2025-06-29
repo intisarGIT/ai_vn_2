@@ -103,7 +103,9 @@ export interface Database {
           text: string[]
           image_prompt: string
           image_url: string | null
+          options: string[]
           selected_option: string | null
+          is_correct_path: boolean[]
           is_game_over: boolean
           is_main_path: boolean
           created_at: string
@@ -116,7 +118,9 @@ export interface Database {
           text: string[]
           image_prompt: string
           image_url?: string | null
+          options?: string[]
           selected_option?: string | null
+          is_correct_path?: boolean[]
           is_game_over?: boolean
           is_main_path?: boolean
           created_at?: string
@@ -129,7 +133,9 @@ export interface Database {
           text?: string[]
           image_prompt?: string
           image_url?: string | null
+          options?: string[]
           selected_option?: string | null
+          is_correct_path?: boolean[]
           is_game_over?: boolean
           is_main_path?: boolean
           created_at?: string
