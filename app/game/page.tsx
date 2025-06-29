@@ -248,18 +248,25 @@ export default function GamePage() {
       {/* Background Image */}
       <div className="absolute inset-0">
         {currentImage && currentImage !== "/placeholder.svg?height=600&width=800" ? (
-          <img
-            src={currentImage || "/placeholder.svg"}
-            alt="Scene background"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = "none"
-            }}
-          />
+          <div className="relative w-full h-full">
+            <img
+              src={currentImage}
+              alt="Scene background"
+              className="w-full h-full object-cover"
+              loading="eager"
+              onError={(e) => {
+                console.warn("Failed to load scene image:", currentImage)
+                e.currentTarget.style.display = "none"
+              }}
+              onLoad={() => {
+                console.log("Scene image loaded successfully:", currentImage)
+              }}
+            />
+            <div className="absolute inset-0 bg-black/40" />
+          </div>
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900" />
         )}
-        <div className="absolute inset-0 bg-black/40" />
       </div>
 
       {/* UI Overlay */}
