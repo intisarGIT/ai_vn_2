@@ -41,23 +41,46 @@ export default function CreditsPage() {
   const [isLoading, setIsLoading] = useState<string | null>(null)
 
   const handlePurchase = async (packageName: string, credits: number) => {
+    if (!userInfo?.id) {
+      toast({
+        title: "Error",
+        description: "Please sign in to purchase credits.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsLoading(packageName)
 
     try {
-      // In a real implementation, integrate with Paddle here
-      // For now, simulate the purchase
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const response = await fetch("/api/credits/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: userInfo.id,
+          packageName,
+          credits,
+          price: creditPackages.find(pkg => pkg.name === packageName)?.price,
+        }),
+      })
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Purchase failed")
+      }
+
+      const { newCredits } = await response.json()
       updateCredits(credits)
 
       toast({
         title: "Purchase Successful!",
-        description: `${credits} credits have been added to your account.`,
+        description: `${credits} credits have been added to your account. Total: ${newCredits}`,
       })
     } catch (error) {
+      console.error("Purchase error:", error)
       toast({
         title: "Purchase Failed",
-        description: "There was an error processing your purchase. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error processing your purchase. Please try again.",
         variant: "destructive",
       })
     } finally {
