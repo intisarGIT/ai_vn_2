@@ -27,20 +27,77 @@ export default function GameOverPage() {
 
     setIsGeneratingStorybook(true)
     try {
-      // In a real implementation, this would call an API to generate a PDF storybook
-      // For now, we'll simulate the process
-      await new Promise((resolve) => setTimeout(resolve, 3000))
+      // Generate storybook via API
+      const response = await fetch("/api/storybook/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ storyId }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to generate storybook")
+      }
+
+      const { storybook } = await response.json()
+
+      // Create a simple HTML version of the storybook
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${storybook.title}</title>
+          <style>
+            body { font-family: Georgia, serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+            .cover { text-align: center; margin-bottom: 40px; }
+            .scene { margin-bottom: 30px; page-break-inside: avoid; }
+            .scene-image { max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px; }
+            .scene-text { line-height: 1.6; margin-bottom: 10px; }
+            .stats { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 30px; }
+          </style>
+        </head>
+        <body>
+          <div class="cover">
+            <h1>${storybook.title}</h1>
+            <h2>A ${storybook.genre} Adventure</h2>
+            <p>By ${storybook.author}</p>
+            <p>Generated on ${new Date(storybook.createdAt).toLocaleDateString()}</p>
+          </div>
+          
+          ${storybook.scenes.map((scene, index) => `
+            <div class="scene">
+              <h3>Scene ${scene.sceneNumber}</h3>
+              ${scene.imageUrl && scene.imageUrl !== "/placeholder.svg?height=600&width=800" ? 
+                `<img src="${scene.imageUrl}" alt="Scene ${scene.sceneNumber}" class="scene-image" />` : 
+                ''}
+              ${scene.text.map(text => `<p class="scene-text">${text}</p>`).join('')}
+            </div>
+          `).join('')}
+          
+          <div class="stats">
+            <h3>Adventure Statistics</h3>
+            <p><strong>Total Scenes:</strong> ${storybook.totalScenes}</p>
+            <p><strong>Final ${storybook.xMeterType}:</strong> ${storybook.finalXMeter}/100</p>
+            <p><strong>Result:</strong> ${storybook.isVictory ? "Victory!" : "Defeat"}</p>
+          </div>
+        </body>
+        </html>
+      `
+
+      // Create and download the HTML file
+      const blob = new Blob([htmlContent], { type: "text/html" })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `${userInfo?.name}-adventure-storybook.html`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
 
       toast({
         title: "Storybook Generated!",
-        description: "Your adventure storybook is ready for download.",
+        description: "Your adventure storybook has been downloaded.",
       })
-
-      // Simulate download
-      const link = document.createElement("a")
-      link.href = "/placeholder.svg" // In real implementation, this would be the PDF URL
-      link.download = `${userInfo?.name}-adventure-storybook.pdf`
-      link.click()
     } catch (error) {
       console.error("Error generating storybook:", error)
       toast({
