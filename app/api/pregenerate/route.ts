@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     // Pre-generate both next scenes in background
     const promises = [
       // Generate a_(n+1) - correct path
-      fetch("/api/scene", {
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/scene`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         }),
       }),
       // Generate b_(n+1) - wrong path
-      fetch("/api/scene", {
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/scene`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
